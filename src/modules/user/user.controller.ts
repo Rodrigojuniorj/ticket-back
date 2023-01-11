@@ -1,13 +1,5 @@
-import { UserDTO } from './user.dto';
-import {
-  Body,
-  Controller,
-  Delete,
-  Param,
-  Post,
-  Put,
-  Get,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { CreateUserDto } from './dto/create-user.dto';
 import { UserService } from './user.service';
 
 @Controller('user')
@@ -15,22 +7,12 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  async create(@Body() data: UserDTO) {
-    return await this.userService.create(data);
+  create(@Body() createUserDto: CreateUserDto) {
+    return this.userService.create(createUserDto);
   }
 
-  @Get()
-  async findAll() {
-    return this.userService.findAll();
-  }
-
-  @Put(':id')
-  async update(@Param('id') id: number, @Body() data: UserDTO) {
-    return this.userService.update(id, data);
-  }
-
-  @Delete(':id')
-  async delete(@Param('id') id: number) {
-    return this.userService.delete(id);
+  @Get(':email')
+  findByEmail(@Param('email') email: string) {
+    return this.userService.findByEmail(email);
   }
 }

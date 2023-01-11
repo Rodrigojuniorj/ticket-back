@@ -1,67 +1,30 @@
-import { UserDTO } from './user.dto';
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/database/PrismaService';
-
+import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateUserDto } from './dto/create-user.dto';
+import * as bcrypt from 'bcrypt';
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: UserDTO) {
-    const userExists = await this.prisma.user.findFirst({
-      where: {
-        email: data.email,
-      },
+  async create(createUserDto: CreateUserDto) {
+    const user = {
+      ...createUserDto,
+      password: await bcrypt.hash(createUserDto.password, 10),
+    };
+
+    const createdUser = await this.prisma.user.create({ 
+      data: user
     });
 
-    if (userExists) {
-      throw new Error('User already exists');
-    }
-
-    const user = await this.prisma.user.create({
-      data,
-    });
-
-    return user;
+    return {
+      ...createdUser,
+      password: undefined,
+    };
   }
 
-  async findAll() {
-    return this.prisma.user.findMany();
-  }
-
-  async update(id: number, data: UserDTO) {
-    const userExists = await this.prisma.user.findUnique({
-      where: {
-        id: parseInt(id.toString()),
-      },
-    });
-
-    if (!userExists) {
-      throw new Error('User does not exists!');
-    }
-
-    return await this.prisma.user.update({
-      data,
-      where: {
-        id: parseInt(id.toString()),
-      },
-    });
-  }
-
-  async delete(id: number) {
-    const userExists = await this.prisma.user.findUnique({
-      where: {
-        id: parseInt(id.toString()),
-      },
-    });
-
-    if (!userExists) {
-      throw new Error('User does not exists!');
-    }
-
-    return await this.prisma.user.delete({
-      where: {
-        id: parseInt(id.toString()),
-      },
+  async findByEmail(email: string) {
+    return await this.prisma.user.findUnique({ 
+      where: { email }
     });
   }
 }
