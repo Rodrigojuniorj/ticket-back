@@ -22,7 +22,18 @@ export class UserService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findByEmail(email: string) {
+    const user = await this.prisma.user.findUnique({ 
+      where: { email }
+    });
+
+    if(!user){
+      throw new Error('Email does not exists!');
+    }
+
+    return {
+      ...user,
+      password: undefined,
+    };
   }
 }
