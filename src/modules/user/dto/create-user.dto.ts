@@ -21,4 +21,13 @@ export class CreateUserDto extends User {
 
   @IsString()
   name: string;
+
+  @IsString()
+  cpf: string;
+
+  @IsString()
+  phone: string;
+
+  @IsString()
+  birth_date: Date;
 }

@@ -10,7 +10,7 @@ import { UserToken } from './models/UserToken';
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly userService: UserService, 
+    private readonly userService: UserService,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -19,6 +19,7 @@ export class AuthService {
     const payload: UserPayload = {
       sub: user.id,
       email: user.email,
+      cpf: user.cpf,
       name: user.name,
     };
 
@@ -26,11 +27,11 @@ export class AuthService {
 
     return {
       access_token: jwtToken,
-    }
+    };
   }
 
-  async validateUser(email: string, password: string) {
-    const user = await this.userService.findByEmail(email);
+  async validateUser(cpf: string, password: string) {
+    const user = await this.userService.findByCpf(cpf);
 
     if (user) {
       // checar se a senha corresponde a hash do banco
@@ -45,8 +46,6 @@ export class AuthService {
     }
 
     // se não encontrar o usuário ou a senha não corresponder.
-    throw new UnauthorizedError(
-      'Email address or password provided is incorrect.',
-    );
+    throw new UnauthorizedError('Cpf informado está incorreto.');
   }
 }
